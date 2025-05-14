@@ -1,16 +1,17 @@
 const mongoose = require('mongoose');
 
-const NodeSchema = new mongoose.Schema({
-  node_name: String,
-  ethereum_rpc: String,
-  beacon_rpc: String,
-  private_key: String,
-  wallet_address: String,
-  vps_ip: String,
-  block_number: String,
-  proof_string: String,
-  status: { type: String, default: 'active' },
-  base_start_command: String, // New field for the dynamically generated command
-}, { timestamps: true });
+const nodeSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    ethereum_rpc: { type: String },
+    beacon_rpc: { type: String },
+    private_key: { type: String },
+    wallet_address: { type: String },
+    vps_ip: { type: String },
+    block_number: { type: String },
+    proof_string: { type: String },
+    status: { type: String, default: 'active' },
+    start_command: { type: String },
+    createdAt: { type: Date, default: Date.now }
+});
 
-module.exports = mongoose.model('NodeData', NodeSchema);
+module.exports = mongoose.model('Node', nodeSchema);
