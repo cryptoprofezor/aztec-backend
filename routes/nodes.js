@@ -19,6 +19,7 @@ const verifyToken = (req, res, next) => {
     }
 };
 
+// Get all nodes
 router.get('/nodes', verifyToken, async (req, res) => {
     try {
         const nodes = await Node.find();
@@ -29,6 +30,7 @@ router.get('/nodes', verifyToken, async (req, res) => {
     }
 });
 
+// Get node by ID
 router.get('/nodes/:id', verifyToken, async (req, res) => {
     try {
         const node = await Node.findById(req.params.id);
@@ -40,6 +42,7 @@ router.get('/nodes/:id', verifyToken, async (req, res) => {
     }
 });
 
+// Create a node
 router.post('/nodes', verifyToken, async (req, res) => {
     try {
         const node = new Node(req.body);
@@ -51,6 +54,7 @@ router.post('/nodes', verifyToken, async (req, res) => {
     }
 });
 
+// Update a node
 router.put('/nodes/:id', verifyToken, async (req, res) => {
     try {
         const node = await Node.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -62,6 +66,7 @@ router.put('/nodes/:id', verifyToken, async (req, res) => {
     }
 });
 
+// Delete a node
 router.delete('/nodes/:id', verifyToken, async (req, res) => {
     try {
         const node = await Node.findByIdAndDelete(req.params.id);
@@ -73,12 +78,19 @@ router.delete('/nodes/:id', verifyToken, async (req, res) => {
     }
 });
 
+// Get stats
 router.get('/stats', verifyToken, async (req, res) => {
     try {
-        const stats = await Node.aggregate([
-            { $group: { _id: '$status', count: { $sum: 1 } } }
-        ]);
-        res.status(200).json(stats);
+        const nodes = await Node.find();
+        const totalNodes = nodes.length;
+        const activeNodes = nodes.filter(node => node.status === 'active').length;
+        const uniqueWallets = [...new Set(nodes.map(node => node.wallet_address))].filter(Boolean).length;
+
+        res.status(200).json({
+            total_nodes: totalNodes,
+            active_nodes: activeNodes,
+            unique_wallets: uniqueWallets
+        });
     } catch (err) {
         console.error('Error fetching stats:', err);
         res.status(500).json({ error: 'Failed to fetch stats' });
